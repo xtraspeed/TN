@@ -85,30 +85,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-from datetime import datetime
 
-timestamps = [
-    datetime(2022, 12, 30),
-    datetime(2023, 1, 31),
-    datetime(2023, 4, 28),
-    datetime(2023, 5, 31),
-    datetime(2023, 6, 30)
-]
 
-ranges = []
-start_date = None
-
-for i in range(len(timestamps) - 1):
-    if (timestamps[i + 1] - timestamps[i]).days > 31:
-        if start_date:
-            ranges.append((start_date.strftime('%Y-%m-%d'), timestamps[i].strftime('%Y-%m-%d')))
-            start_date = None
-    else:
-        if not start_date:
-            start_date = timestamps[i]
-
-if start_date:
-    ranges.append((start_date.strftime('%Y-%m-%d'), timestamps[-1].strftime('%Y-%m-%d')))
-
-print(ranges)
+[('2022-12-30', '2023-01-31'), ('2023-04-28', '2023-06-30')]
 
