@@ -1,4 +1,4 @@
-import os
+noimport os
 import sys
 import pickle
 import gc
@@ -111,3 +111,31 @@ print(ranges)
 
 [('2022-12-30', '2023-01-31'), ('2023-04-28', '2023-06-30')]
 
+
+from datetime import datetime
+import pandas as pd
+
+timestamps = [
+    pd.Timestamp('2022-12-30', freq='BM'),
+    pd.Timestamp('2023-01-31', freq='BM'),
+    pd.Timestamp('2023-04-28', freq='BM'),
+    pd.Timestamp('2023-05-31', freq='BM'),
+    pd.Timestamp('2023-06-30', freq='BM')
+]
+
+ranges = []
+start_date = timestamps[0]
+
+for i in range(len(timestamps) - 1):
+    if timestamps[i + 1].to_timestamp() - timestamps[i].to_timestamp() > pd.Timedelta(1, unit='M'):
+        ranges.append((start_date.strftime('%Y-%m-%d'), timestamps[i].strftime('%Y-%m-%d')))
+        start_date = timestamps[i + 1]
+
+# Adding the last range
+ranges.append((start_date.strftime('%Y-%m-%d'), timestamps[-1].strftime('%Y-%m-%d')))
+
+# Filtering out any ranges with just one date
+ranges = [(start, end) for start, end in ranges if start != end]
+
+print(ranges)
+                                           
