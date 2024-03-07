@@ -1,4 +1,4 @@
-noimport os
+nonoimport os
 import sys
 import pickle
 import gc
@@ -86,4 +86,47 @@ def main():
 if __name__ == '__main__':
     main()
 
-                                           
+import pandas as pd
+
+# Sample left dataframe
+left_data = {
+    'key': ['A', 'B', 'C', 'D', 'E'],
+    'date': ['2024-01-01', '2024-02-15', '2024-03-20', '2024-04-10', '2024-05-25']
+}
+df_left = pd.DataFrame(left_data)
+
+# Sample right dataframe
+right_data = {
+    'key': ['A', 'B', 'C', 'D', 'E'],
+    'start_date': ['2024-01-01', '2024-02-01', '2024-03-15', '2024-04-05', '2024-05-20'],
+    'end_date': ['2024-01-31', '2024-02-28', '2024-03-31', '2024-04-30', '2024-05-31']
+}
+df_right = pd.DataFrame(right_data)
+
+# Define chunk size
+chunk_size = 2
+
+# Initialize previous_chunk_state
+previous_chunk_state = None
+
+# Iterate over chunks of left dataframe
+for left_chunk in pd.read_csv("left_dataframe.csv", chunksize=chunk_size):
+    # Initialize current_chunk_state
+    current_chunk_state = None
+    # Iterate over chunks of right dataframe
+    for right_chunk in pd.read_csv("right_dataframe.csv", chunksize=chunk_size):
+        # If there's a previous chunk's state, merge it with the current right chunk
+        if previous_chunk_state is not None:
+            right_chunk = pd.concat([previous_chunk_state, right_chunk], ignore_index=True)
+        # Perform inner join operation on the current chunks
+        merged_chunk = pd.merge(left_chunk, right_chunk, on='key', how='inner')
+        # Filter merged_chunk based on date condition
+        filtered_chunk = merged_chunk[(merged_chunk['date'] >= merged_chunk['start_date']) & 
+                                      (merged_chunk['date'] <= merged_chunk['end_date'])]
+        # Store the end state of the current right chunk for the next iteration
+        current_chunk_state = right_chunk.iloc[filtered_chunk.index[-1] + 1:]
+        # Process the filtered_chunk as needed
+        print(filtered_chunk)
+    # Update previous_chunk_state for the next iteration
+    previous_chunk_state = current_chunk_state
+        
